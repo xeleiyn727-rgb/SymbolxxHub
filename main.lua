@@ -198,6 +198,10 @@ function Library.CreateWindow(config)
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.AutoLocalize = false
+    ScreenGui.DescendantAdded:Connect(function(inst)
+        local ok = pcall(function() inst.AutoLocalize = false end)
+    end)
     local okParent = pcall(function() ScreenGui.Parent = GuiParent end)
     if not okParent or not ScreenGui.Parent then
         ScreenGui.Parent = PlayerGui
