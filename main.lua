@@ -956,15 +956,16 @@ function Library.CreateWindow(config)
         local CARD_H = 54
         local options = opts.Options or {}
         local callback = opts.Callback
+        local BOX_W = 130
 
-        local Card = MakeCard(page, tabName, order, opts.Title, opts.Description, CARD_H, 140)
+        local Card = MakeCard(page, tabName, order, opts.Title, opts.Description, CARD_H, BOX_W + 26)
         Card.ZIndex = 2 -- so the open list draws over the cards below
 
         local selected = opts.Default or options[1] or ""
 
         local Box = Instance.new("TextButton")
-        Box.Size = UDim2.fromOffset(110, 30)
-        Box.Position = UDim2.new(1, -123, 0.5, -15)
+        Box.Size = UDim2.fromOffset(BOX_W, 30)
+        Box.Position = UDim2.new(1, -(BOX_W + 13), 0.5, -15)
         Box.AutoButtonColor = false
         Box.Text = ""
         Box.ZIndex = 3
@@ -974,8 +975,8 @@ function Library.CreateWindow(config)
 
         local BoxLabel = Instance.new("TextLabel")
         BoxLabel.BackgroundTransparency = 1
-        BoxLabel.Size = UDim2.new(1, -24, 1, 0)
-        BoxLabel.Position = UDim2.fromOffset(10, 0)
+        BoxLabel.Size = UDim2.new(1, -32, 1, 0)
+        BoxLabel.Position = UDim2.fromOffset(12, 0)
         BoxLabel.FontFace = F_Medium
         BoxLabel.TextSize = 12
         BoxLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -986,39 +987,54 @@ function Library.CreateWindow(config)
         Bind(BoxLabel, "TextColor3", function() return Theme.SubText end)
 
         local Chevron = Instance.new("TextLabel")
+        Chevron.AnchorPoint = Vector2.new(0.5, 0.5)
         Chevron.BackgroundTransparency = 1
-        Chevron.Size = UDim2.fromOffset(20, 30)
-        Chevron.Position = UDim2.new(1, -22, 0, 0)
+        Chevron.Size = UDim2.fromOffset(20, 20)
+        Chevron.Position = UDim2.new(1, -18, 0.5, 0)
         Chevron.FontFace = F_Bold
-        Chevron.TextSize = 11
+        Chevron.TextSize = 12
         Chevron.ZIndex = 4
-        Chevron.Text = "v"
+        Chevron.Text = ">"
+        Chevron.Rotation = 0
         Chevron.Parent = Box
         Bind(Chevron, "TextColor3", function() return Theme.SubText end)
 
         local ListHolder = Instance.new("Frame")
-        ListHolder.Size = UDim2.new(0, 110, 0, 0)
-        ListHolder.Position = UDim2.new(1, -123, 0, CARD_H + 4)
+        ListHolder.Size = UDim2.new(0, BOX_W, 0, 0)
+        ListHolder.Position = UDim2.new(1, -(BOX_W + 13), 0, CARD_H + 4)
         ListHolder.ClipsDescendants = true
         ListHolder.ZIndex = 6
         ListHolder.Parent = Card
-        Round(ListHolder, 6)
+        Round(ListHolder, 8)
         Bind(ListHolder, "BackgroundColor3", function() return Theme.Tile end)
+
+        local ListStroke = Instance.new("UIStroke")
+        ListStroke.Thickness = 1
+        ListStroke.Parent = ListHolder
+        Bind(ListStroke, "Color", function() return Theme.Line end)
+
+        local ListPad = Instance.new("UIPadding")
+        ListPad.PaddingTop = UDim.new(0, 4)
+        ListPad.PaddingBottom = UDim.new(0, 4)
+        ListPad.PaddingLeft = UDim.new(0, 4)
+        ListPad.PaddingRight = UDim.new(0, 4)
+        ListPad.Parent = ListHolder
 
         local ListLayout = Instance.new("UIListLayout")
         ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
         ListLayout.Parent = ListHolder
 
+        local ROW_H = 30
         local open = false
         local function closeList()
             open = false
-            Tween(ListHolder, 0.15, { Size = UDim2.new(0, 110, 0, 0) })
+            Tween(ListHolder, 0.15, { Size = UDim2.new(0, BOX_W, 0, 0) })
             Tween(Chevron, 0.15, { Rotation = 0 })
         end
         local function openList()
             open = true
-            Tween(ListHolder, 0.15, { Size = UDim2.new(0, 110, 0, #options * 28) })
-            Tween(Chevron, 0.15, { Rotation = 180 })
+            Tween(ListHolder, 0.15, { Size = UDim2.new(0, BOX_W, 0, #options * ROW_H + 8) })
+            Tween(Chevron, 0.15, { Rotation = 90 })
         end
 
         local optionButtons = {}
@@ -1034,15 +1050,17 @@ function Library.CreateWindow(config)
             optionButtons = {}
             for i, opt in ipairs(options) do
                 local OptBtn = Instance.new("TextButton")
-                OptBtn.Size = UDim2.new(1, 0, 0, 28)
+                OptBtn.Size = UDim2.new(1, 0, 0, ROW_H)
                 OptBtn.BackgroundTransparency = 1
                 OptBtn.AutoButtonColor = false
                 OptBtn.FontFace = F_Medium
                 OptBtn.TextSize = 12
-                OptBtn.Text = tostring(opt)
+                OptBtn.Text = "   " .. tostring(opt)
+                OptBtn.TextXAlignment = Enum.TextXAlignment.Left
                 OptBtn.ZIndex = 7
                 OptBtn.LayoutOrder = i
                 OptBtn.Parent = ListHolder
+                Round(OptBtn, 5)
                 Bind(OptBtn, "TextColor3", function() return Theme.Text end)
 
                 OptBtn.MouseEnter:Connect(function()
